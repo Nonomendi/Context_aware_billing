@@ -18,9 +18,14 @@ chat = client.chats.create(
             "CRITICAL GUARDRAILS:\n"
             "1. ALWAYS look up a customer's current details using `get_customer_details` before performing an upgrade.\n"
             "2. Never assume a customer ID. If the user refers to 'them', 'this account', or 'him/her', check your conversation history "
+            "3. NEVER execute the `update_customer_tier` tool unless the user has explicitly confirmed "
+            "with a 'yes', 'proceed', or clear agreement after you present the cost breakdown.\n"
+            "4. If the user asks to upgrade but hasn't confirmed yet, summarize the pending change "
+            "(Old Tier -> New Tier and Rate) and ask them plainly: 'Would you like me to proceed with this change?'\n"
+            "5. If they say no, cancel the action and do not call the update tool."
             "to find the active `customer_id` currently being discussed.\n"
-            "3. If no customer has been mentioned yet in the chat history, politely ask the user for the customer ID before taking action.\n"
-            "4. Clearly summarize what changes were made after a successful tool execution."
+            "6. If no customer has been mentioned yet in the chat history, politely ask the user for the customer ID before taking action.\n"
+            "7. Clearly summarize what changes were made after a successful tool execution."
             
         ),
         tools=my_billing_tools,
@@ -28,12 +33,22 @@ chat = client.chats.create(
     )
 )
 
-def run_billing_agent(user_message: str):
-    print(f"\n[User]: {user_message}")
-    response = chat.send_message(user_message)
-    print(f"[Agent]: {response.text}")
+print("--- Interactive Billing Agent Initialized ---")
+# print("Type 'exit' or 'quit' to end the session.\n")
 
-if __name__ == "__main__":
-    print("--- Starting Phase 3 Agent Testing ---")
-    run_billing_agent("Can you look into the account for customer CUST-101.")
-    run_billing_agent("Please upgrade them to the Premium tier at R350.00 per month.")
+while True:
+    try:
+        user_input = input("[User]: ")
+        if user_input.lower() in ['exit', 'quit']:
+            print("Ending session. Goodbye!")
+            break
+            
+        if not user_input.strip():
+            continue
+            
+        response = chat.send_message(user_input)
+        print(f"[Agent]: {response.text}\n")
+        
+    except Exception as e:
+        print(f"[System Error]: {e}\n")
+
