@@ -1,17 +1,14 @@
 import json
 import os 
 
-# Set up absolute pathing to prevent folder mismatch issues
 FILE_PATH = os.path.join(os.path.dirname(__file__), "database.json")
 
 def read_database():
-    """Opens the database file, reads it, and returns the data inside it."""
     with open(FILE_PATH, "r") as file:
         return json.load(file)
     
 
 def save_database(data):
-    """Takes updated data and writes it back to the file."""
     with open(FILE_PATH, "w") as file:
         json.dump(data, file, indent=2)
         
@@ -19,9 +16,6 @@ def save_database(data):
 def get_customer_details(customer_id: str) -> dict | str:
     """
     Fetches the account status and billing details for a specific customer.
-
-    Args:
-        customer_id: The unique identifier for the customer (e.g., 'CUST-101').
     """
     db = read_database()
     for customer in db["customers"]:
@@ -31,14 +25,6 @@ def get_customer_details(customer_id: str) -> dict | str:
 
 
 def update_customer_tier(customer_id: str, new_tier: str, new_rate: float) -> str:
-    """
-    Updates a customer's subscription tier level and monthly rate.
-
-    Args:
-        customer_id: The unique identifier for the customer (e.g., 'CUST-101').
-        new_tier: The name of the target plan tier (e.g., 'Premium').
-        new_rate: The numeric billing price for the tier (e.g., 350.00).
-    """
     db = read_database()
     for customer in db["customers"]:
         if customer["customer_id"].lower() == customer_id.lower():
