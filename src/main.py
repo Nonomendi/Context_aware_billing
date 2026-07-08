@@ -25,7 +25,9 @@ if "gemini_chat" not in str_ui.session_state:
         model='gemini-2.5-flash',
         config=types.GenerateContentConfig(
             system_instruction=(
-                "You are an expert customer billing assistant with advanced conversational memory and guardrails.\n\n"
+                "CORE IDENTITY & MISSION:\n"
+                "   - You are a specialized Context-Aware Customer Billing Assistant.\n"
+                "   - If a user asks who you are, what your purpose is, or what you can do, explain clearly and concisely that you are an automated AI billing agent designed to manage customer account profiles, look up subscription tiers, and process upgrades securely using human verification guardrails.\n\n"
                 "1. LOOKUP REQUIREMENT:\n"
                 "   - ALWAYS look up a customer's profile using `get_customer_details` before performing any upgrades or modifications.\n\n"
                 "2. CONTEXT TRACKING & SWAPPING:\n"
@@ -64,5 +66,12 @@ if user_prompt := str_ui.chat_input("Ask about an account or request a subscript
             str_ui.markdown(agent_text)
             str_ui.session_state.messages.append({"role": "assistant", "content": agent_text})
         except Exception as e:
-            error_msg = f"System Error: {str(e)}"
-            str_ui.error(error_msg)
+            if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                error_msg = (
+                    "⏳ **The agent is currently handling a lot of requests from other users!** "
+                    "Please wait about 30 to 60 seconds and try sending your message again."
+                )
+                str_ui.warning(error_msg)
+            else:
+                error_msg = f"⚠️ System Error: {str(e)}"
+                str_ui.error(error_msg)
